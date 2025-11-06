@@ -1,7 +1,9 @@
 package reservation;
 
+import io.quarkus.logging.Log;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
+import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.RestQuery;
 
 import java.time.LocalDate;
@@ -15,10 +17,15 @@ import java.util.Map;
 public class ReservationResource {
     private final ReservationRepository reservationRepository;
     private final InventoryClient inventoryCLient;
+    private final RentalClient rentalClient;
 
-    public ReservationResource(ReservationRepository reservationRepository, InventoryClient inventoryCLient) {
+    public ReservationResource(
+            ReservationRepository reservationRepository,
+            InventoryClient inventoryCLient,
+            @RestClient RentalClient rentalClient) {
         this.reservationRepository = reservationRepository;
         this.inventoryCLient = inventoryCLient;
+        this.rentalClient = rentalClient;
     }
 
     @GET
@@ -43,6 +50,12 @@ public class ReservationResource {
     @Consumes(MediaType.APPLICATION_JSON)
     @POST
     public Reservation make(Reservation reservation) {
-        return  reservationRepository.save(reservation);
+        Reservation result = reservationRepository.save(reservation);
+        String userId = "x";
+        if (reservation.startDay.equals(LocalDate.now())) {
+            Rental rental = rentalClient.start(userId, result.id);
+            Log.info("Successfully started rental " + rental);
+        }
+        return result;
     }
 }
