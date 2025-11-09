@@ -1,10 +1,12 @@
 package reservation;
 
 import io.quarkus.logging.Log;
+import io.smallrye.graphql.client.GraphQLClient;
 import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.RestQuery;
+import reservation.inventory.GraphQLInventoryClient;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -21,10 +23,10 @@ public class ReservationResource {
 
     public ReservationResource(
             ReservationRepository reservationRepository,
-            InventoryClient inventoryCLient,
+            @GraphQLClient("inventory") GraphQLInventoryClient inventoryClient,
             @RestClient RentalClient rentalClient) {
         this.reservationRepository = reservationRepository;
-        this.inventoryCLient = inventoryCLient;
+        this.inventoryCLient = inventoryClient;
         this.rentalClient = rentalClient;
     }
 
