@@ -1,0 +1,16 @@
+<h2>Available cars to rent</h2>
+<form hx-get="/availability" hx-target="#availability">
+    <p>Start date:<input id="startDateInput" type="date"
+                         name="startDate" value="{startDate}"/></p>
+    <p>End date:<input id="endDateInput" type="date"
+                       name="endDate" value="{endDate}"/></p>
+    The div that the
+    <input type="submit" value="Update list"/>
+    availablecars.html
+</form>
+template populates
+<div id="availability" hx-get="/availability"
+     hx-trigger="load, update-available-cars-list from:body"
+     hx-include="[id='startDateInput'],[id='endDateInput']">
+    <!-- To be replaced by the result of calling /available -->
+</div>

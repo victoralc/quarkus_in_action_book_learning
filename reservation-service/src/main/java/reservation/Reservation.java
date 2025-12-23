@@ -3,6 +3,7 @@ package reservation;
 import java.time.LocalDate;
 
 public class Reservation {
+    public String userId;
     public Long id;
     public Long carId;
     public LocalDate startDay;
