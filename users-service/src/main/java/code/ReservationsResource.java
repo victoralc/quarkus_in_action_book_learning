@@ -3,15 +3,9 @@ package code;
 import code.model.Car;
 import code.model.Reservation;
 import io.quarkus.qute.CheckedTemplate;
-import io.quarkus.qute.Template;
 import io.quarkus.qute.TemplateInstance;
-import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.POST;
-import jakarta.ws.rs.Path;
-import jakarta.ws.rs.Produces;
+import jakarta.ws.rs.*;
 import jakarta.ws.rs.core.MediaType;
-import jakarta.ws.rs.core.SecurityContext;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
 import org.jboss.resteasy.reactive.RestForm;
 import org.jboss.resteasy.reactive.RestQuery;
@@ -22,46 +16,40 @@ import java.util.Collection;
 
 @Path("/")
 public class ReservationsResource {
+
     @CheckedTemplate
     public static class Templates {
         public static native TemplateInstance index(LocalDate startDate, LocalDate endDate, String name);
         public static native TemplateInstance reservations(Collection<Reservation> reservations);
-
-        public static native TemplateInstance availablecars(Collection<Car> cars, LocalDate startDate, LocalDate endDate);
+        // Main page
+        public static native TemplateInstance availability(Collection<Car> cars, LocalDate startDate, LocalDate endDate);
+        // Fragment for HTMX updates (availability.html#carList)
+        public static native TemplateInstance availability$carList(Collection<Car> cars, LocalDate startDate, LocalDate endDate);
     }
-
-    @Inject
-    SecurityContext securityContext;
 
     @RestClient
     ReservationsClient reservationsClient;
 
     @GET
     @Produces(MediaType.TEXT_HTML)
-    public TemplateInstance index(@RestQuery LocalDate startDate, @RestQuery LocalDate endDate) {
-        if (startDate == null) {
-            startDate = LocalDate.now().plusDays(1L);
-        }
-        if (endDate == null) {
-            endDate = LocalDate.now().plusDays(7);
-        }
-        return Templates.index(startDate, endDate, securityContext.getUserPrincipal().getName());
-    }
+    @Path("/cars/available")
+    public TemplateInstance getAvailableCars(
+            @RestQuery LocalDate startDate,
+            @RestQuery LocalDate endDate,
+            @HeaderParam("HX-Request") boolean isHtmxRequest) {
 
-    @GET
-    @Produces(MediaType.TEXT_HTML)
-    @Path("/reservations")
-    public TemplateInstance getReservations() {
-        Collection<Reservation> reservations = reservationsClient.allReservations();
-        return Templates.reservations(reservations);
-    }
+        // Default dates if null
+        if (startDate == null) startDate = LocalDate.now().plusDays(1);
+        if (endDate == null) endDate = LocalDate.now().plusDays(7);
 
-    @GET
-    @Produces(MediaType.TEXT_HTML)
-    @Path("/availability")
-    public TemplateInstance getAvailableCars(@RestQuery LocalDate startDate, @RestQuery LocalDate endDate) {
         Collection<Car> availableCars = reservationsClient.availability(startDate, endDate);
-        return Templates.availablecars(availableCars, startDate, endDate);
+
+        if (isHtmxRequest) {
+            // Return only the HTML fragment for the list
+            return Templates.availability$carList(availableCars, startDate, endDate);
+        }
+        // Return the full page for direct browser access
+        return Templates.availability(availableCars, startDate, endDate);
     }
 
     @POST
@@ -72,10 +60,20 @@ public class ReservationsResource {
         reservation.startDay = startDate;
         reservation.endDay = endDate;
         reservation.carId = carId;
+
         reservationsClient.make(reservation);
+
+        // Return the updated reservations list and trigger a refresh of the availability list via HTMX header
         return RestResponse.ResponseBuilder
                 .ok(getReservations())
-                .header("HX-Trigger-After-Swap", "update-available-cars-list")
+                .header("HX-Trigger", "update-available-cars-list")
                 .build();
+    }
+
+    @GET
+    @Produces(MediaType.TEXT_HTML)
+    @Path("/reservations")
+    public TemplateInstance getReservations() {
+        return Templates.reservations(reservationsClient.allReservations());
     }
 }

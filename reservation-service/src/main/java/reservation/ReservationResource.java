@@ -51,6 +51,8 @@ public class ReservationResource {
                 carsById.remove(reservation.carId);
             }
         }
+
+        Log.info("Available Cars: " + carsById.values());
         return carsById.values();
     }
 

@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@4.0.0/dist/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 </head>
 <body>
-    {#include fragments/header /}
+    {#include fragments/header username=cdi:currentUser.username /}
 <h2>List of reservations</h2>
 <div id="reservations" hx-get="/get" hx-trigger="load">
     <!-- To be replaced by the result of calling /get -->
