@@ -1,11 +1,13 @@
 package service;
 
-import database.CarInventory;
+import io.quarkus.logging.Log;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import model.Car;
 import org.eclipse.microprofile.graphql.GraphQLApi;
 import org.eclipse.microprofile.graphql.Mutation;
 import org.eclipse.microprofile.graphql.Query;
+import repository.CarRepository;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,27 +15,31 @@ import java.util.Optional;
 @GraphQLApi
 public class GraphQLInventoryService {
     @Inject
-    CarInventory inventory;
+    CarRepository inventory;
 
     @Query
     public List<Car> cars() {
-        return inventory.getCars();
+        return inventory.listAll();
     }
 
     @Mutation
+    @Transactional
     public Car register(Car car) {
-        car.id = CarInventory.ID_GENERATOR.incrementAndGet();
-        inventory.getCars().add(car);
+        inventory.persist(car);
+        Log.info("Car persisted: " + car);
         return car;
     }
 
     @Mutation
+    @Transactional
     public boolean remove(String licensePlateNumber) {
-        List<Car> cars = inventory.getCars();
-        Optional<Car> toBeRemoved = cars.stream()
-                .filter(car -> car.licensePlateNumber
-                        .equals(licensePlateNumber))
-                .findAny();
-        return toBeRemoved.map(cars::remove).orElse(false);
+        Optional<Car> toBeRemoved = inventory
+                .findByLicensePlateNumberOptional(licensePlateNumber);
+        if (toBeRemoved.isPresent()) {
+            inventory.delete(toBeRemoved.get());
+            return true;
+        } else {
+            return false;
+        }
     }
 }

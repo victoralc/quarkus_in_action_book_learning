@@ -1,5 +1,6 @@
 package reservation;
 
+import io.quarkus.test.TestTransaction;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
 import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.DisabledOnIntegrationTest;
@@ -20,6 +21,7 @@ import static org.hamcrest.Matchers.notNullValue;
 import static org.hamcrest.core.Is.is;
 
 @QuarkusTest
+@TestTransaction
 class ReservationResourceTest {
 
     @TestHTTPEndpoint(ReservationResource.class)

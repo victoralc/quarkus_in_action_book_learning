@@ -1,15 +1,17 @@
 package grpc;
 
-import database.CarInventory;
 import io.quarkus.grpc.GrpcService;
 import io.quarkus.logging.Log;
+import io.smallrye.common.annotation.Blocking;
 import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
+import jakarta.transaction.Transactional;
 import model.Car;
 import org.acme.inventory.model.CarResponse;
 import org.acme.inventory.model.InsertCarRequest;
 import org.acme.inventory.model.InventoryService;
 import org.acme.inventory.model.RemoveCarRequest;
+import repository.CarRepository;
 
 import java.util.Optional;
 
@@ -17,43 +19,43 @@ import java.util.Optional;
 public class GrpcInventoryService implements InventoryService {
 
     @Inject
-    CarInventory inventory;
+    CarRepository inventory;
 
     @Override
+    @Blocking
     public Uni<CarResponse> add(InsertCarRequest request) {
         Car car = new Car();
-        car.licensePlateNumber = request.getLicensePlateNumber();
-        car.manufacturer = request.getManufacturer();
-        car.model = request.getModel();
-        car.id = CarInventory.ID_GENERATOR.incrementAndGet();
+        car.setLicensePlateNumber(request.getLicensePlateNumber());
+        car.setManufacturer(request.getManufacturer());
+        car.setModel(request.getModel());
 
         Log.info("Persisting " + car);
 
-        inventory.getCars().add(car);
-
         return Uni.createFrom().item(CarResponse.newBuilder()
-                .setLicensePlateNumber(car.licensePlateNumber)
-                .setManufacturer(car.manufacturer)
-                .setModel(car.model)
-                .setId(car.id)
+                .setLicensePlateNumber(car.getLicensePlateNumber())
+                .setManufacturer(car.getManufacturer())
+                .setModel(car.getModel())
+                .setId(car.getId())
                 .build());
     }
 
     @Override
+    @Blocking
+    @Transactional
     public Uni<CarResponse> remove(RemoveCarRequest request) {
-        Optional<Car> optionalCar = inventory.getCars().stream()
+        Optional<Car> optionalCar = inventory.streamAll()
                 .filter(car -> request.getLicensePlateNumber()
-                        .equals(car.licensePlateNumber))
+                        .equals(car.getLicensePlateNumber()))
                 .findFirst();
 
         if (optionalCar.isPresent()) {
             Car removedCar = optionalCar.get();
-            inventory.getCars().remove(removedCar);
+            inventory.delete(removedCar);
             return Uni.createFrom().item(CarResponse.newBuilder()
-                    .setLicensePlateNumber(removedCar.licensePlateNumber)
-                    .setManufacturer(removedCar.manufacturer)
-                    .setModel(removedCar.model)
-                    .setId(removedCar.id)
+                    .setLicensePlateNumber(removedCar.getLicensePlateNumber())
+                    .setManufacturer(removedCar.getManufacturer())
+                    .setModel(removedCar.getModel())
+                    .setId(removedCar.getId())
                     .build());
         }
 
