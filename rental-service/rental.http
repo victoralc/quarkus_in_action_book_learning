@@ -1,0 +1,32 @@
+### POST rental - creates a new rental resource
+POST localhost:8082/rental/start/user1/1
+Content-Type: application/json
+
+{
+    "active": true,
+    "endDate": null,
+    "id": "66f42c220498235e9684db9e",
+    "reservationId": 1,
+    "startDate": "2024-09-25",
+    "userId": "user1"
+}
+
+### PUT rental - updates a rental resource
+PUT localhost:8082/rental/end/user1/1
+Content-Type: application/json
+
+{
+  "active": false,
+  "endDate": "2024-09-25",
+  "id": "66f42c220498235e9684db9e",
+  "reservationId": 1,
+  "startDate": "2024-09-25",
+  "userId": "user1"
+}
+
+### GET rentals - get all rentals
+GET localhost:8082/rental
+
+### GET active rentals - get all active rentals
+GET localhost:8082/rental/active
+###

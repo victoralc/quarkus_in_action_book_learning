@@ -8,6 +8,7 @@ import io.quarkus.test.junit.QuarkusMock;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
+import io.smallrye.mutiny.Uni;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 import reservation.inventory.GraphQLInventoryClient;
@@ -27,6 +28,7 @@ class ReservationResourceTest {
     @TestHTTPEndpoint(ReservationResource.class)
     @TestHTTPResource
     URL reservationResource;
+
     @TestHTTPEndpoint(ReservationResource.class)
     @TestHTTPResource("availability")
     URL availability;
@@ -55,7 +57,7 @@ class ReservationResourceTest {
         GraphQLInventoryClient mock = Mockito.mock(GraphQLInventoryClient.class);
         Car peugeot = new Car(1L, "ABC123", "Peugeot", "406");
         Mockito.when(mock.allCars())
-                .thenReturn(Collections.singletonList(peugeot));
+                .thenReturn(Uni.createFrom().item(Collections.singletonList(peugeot)));
 
         QuarkusMock.installMockForType(mock, GraphQLInventoryClient.class);
 
@@ -64,13 +66,13 @@ class ReservationResourceTest {
         // List available cars for our requested timeslot and choose one
         Car[] cars = RestAssured
                 .given()
-                    .queryParam("startDate", startDate)
-                    .queryParam("endDate", endDate)
+                .queryParam("startDate", startDate)
+                .queryParam("endDate", endDate)
                 .when()
-                    .get(availability)
+                .get(availability)
                 .then()
-                    .statusCode(200)
-                    .extract().as(Car[].class);
+                .statusCode(200)
+                .extract().as(Car[].class);
         Car car = cars[0];
 
         // Prepare a Reservation object
@@ -82,23 +84,23 @@ class ReservationResourceTest {
         // Submit the reservation
         RestAssured
                 .given()
-                    .contentType(ContentType.JSON)
-                    .body(reservation)
+                .contentType(ContentType.JSON)
+                .body(reservation)
                 .when()
-                    .post(reservationResource)
+                .post(reservationResource)
                 .then()
-                    .statusCode(200)
-                    .body("carId", is(car.id().intValue()));
+                .statusCode(200)
+                .body("carId", is(car.id().intValue()));
 
         // Verify that this car doesn't show as available anymore
         RestAssured
                 .given()
-                    .queryParam("startDate", startDate)
-                    .queryParam("endDate", endDate)
+                .queryParam("startDate", startDate)
+                .queryParam("endDate", endDate)
                 .when()
-                    .get(availability)
+                .get(availability)
                 .then()
-                    .statusCode(200)
-                    .body("findAll { car -> car.id == " + car.id() + "}", hasSize(0));
+                .statusCode(200)
+                .body("findAll { car -> car.id == " + car.id() + "}", hasSize(0));
     }
 }

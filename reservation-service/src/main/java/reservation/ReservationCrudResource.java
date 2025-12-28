@@ -1,8 +1,9 @@
 package reservation;
 
-import io.quarkus.hibernate.orm.rest.data.panache.PanacheEntityResource;
+import io.quarkus.hibernate.reactive.rest.data.panache.PanacheEntityResource;
 import io.quarkus.rest.data.panache.ResourceProperties;
 
 @ResourceProperties(path = "/admin/reservation")
 public interface ReservationCrudResource extends PanacheEntityResource<Reservation, Long> {
+
 }
