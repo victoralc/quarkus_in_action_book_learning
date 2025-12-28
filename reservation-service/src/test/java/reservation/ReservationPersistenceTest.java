@@ -24,7 +24,7 @@ public class ReservationPersistenceTest {
                     Assertions.assertNotNull(r.id);
                     asserter.putData("reservation.id", r.id);
                 });
-        asserter.assertEquals(Reservation::count, 1L);
+        asserter.assertEquals(() -> Reservation.count(), 1L);
         asserter.assertThat(() -> Reservation.<Reservation>findById(asserter.getData("reservation.id")),
                 persistedReservation -> {
                     Assertions.assertNotNull(persistedReservation);
