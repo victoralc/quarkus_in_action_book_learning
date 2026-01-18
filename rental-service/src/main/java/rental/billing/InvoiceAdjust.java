@@ -1,4 +1,4 @@
-package rental;
+package rental.billing;
 
 import java.time.LocalDate;
 

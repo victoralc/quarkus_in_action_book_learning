@@ -2,9 +2,11 @@ package billing;
 
 import billing.data.InvoiceConfirmation;
 import billing.model.Invoice;
+import billing.model.InvoiceAdjust;
 import io.quarkus.logging.Log;
 import io.smallrye.common.annotation.Blocking;
 import jakarta.enterprise.context.ApplicationScoped;
+import org.eclipse.microprofile.reactive.messaging.Acknowledgment;
 import org.eclipse.microprofile.reactive.messaging.Incoming;
 import org.eclipse.microprofile.reactive.messaging.Outgoing;
 
@@ -41,4 +43,15 @@ public class PaymentRequester {
         System.out.println(invoiceConfirmation);
     }
     */
+
+    @Incoming("invoices-adjust")
+    @Blocking
+    @Acknowledgment(Acknowledgment.Strategy.PRE_PROCESSING)
+    public void requestAdjustment(InvoiceAdjust invoiceAdjust) {
+        Log.info("Received invoice adjustment: " + invoiceAdjust);
+        payment(invoiceAdjust.userId, invoiceAdjust.price, invoiceAdjust);
+        invoiceAdjust.paid = true;
+        invoiceAdjust.persist();
+        Log.infof("Invoice adjustment %s is paid.", invoiceAdjust);
+    }
 }

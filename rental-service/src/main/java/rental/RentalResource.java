@@ -6,6 +6,8 @@ import jakarta.ws.rs.*;
 import org.eclipse.microprofile.reactive.messaging.Channel;
 import org.eclipse.microprofile.reactive.messaging.Emitter;
 import org.eclipse.microprofile.rest.client.inject.RestClient;
+import rental.billing.InvoiceAdjust;
+import rental.entity.Rental;
 import rental.reservation.Reservation;
 import rental.reservation.ReservationClient;
 
@@ -30,13 +32,12 @@ public class RentalResource {
 
     @Path("/start/{userId}/{reservationId}")
     @POST
-    public Rental start(String userId,
-                        Long reservationId) {
+    public Rental start(String userId, Long reservationId) {
         Log.infof("Starting rental for %s with reservation %s",
                 userId, reservationId);
 
         Optional<Rental> rentalOptional = Rental
-                .findByUserAndReservationOptional(userId, reservationId);
+                .findByUserAndReservationIdsOptional(userId, reservationId);
 
         Rental rental;
         if (rentalOptional.isPresent()) {
@@ -63,7 +64,7 @@ public class RentalResource {
                 userId, reservationId);
 
         Rental rental = Rental
-                .findByUserAndReservationOptional(userId, reservationId)
+                .findByUserAndReservationIdsOptional(userId, reservationId)
                 .orElseThrow(() -> new NotFoundException("Rental not found"));
 
         if (!rental.paid) {

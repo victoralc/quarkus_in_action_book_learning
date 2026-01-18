@@ -1,4 +1,4 @@
-package rental;
+package rental.entity;
 
 import io.quarkus.mongodb.panache.PanacheMongoEntity;
 import io.quarkus.mongodb.panache.common.MongoEntity;
@@ -30,10 +30,13 @@ public class Rental extends PanacheMongoEntity {
         this.active = active;
     }
 
-    public static Optional<Rental> findByUserAndReservationOptional(String userId, Long reservationId) {
-        return find("userId = ?1 and reservationId = ?2", userId, reservationId)
+    public static Optional<Rental> findByUserAndReservationIdsOptional(
+            String userId, Long reservationId) {
+        return find("userId = ?1 and reservationId = ?2",
+                userId, reservationId)
                 .firstResultOptional();
     }
+
     public static List<Rental> listActive() {
         return list("active", true);
     }
@@ -42,6 +45,7 @@ public class Rental extends PanacheMongoEntity {
     public String toString() {
         return "Rental{" +
                 "id=" + id +
+                ", paid=" + paid +
                 ", active=" + active +
                 ", endDate=" + endDate +
                 ", startDate=" + startDate +
