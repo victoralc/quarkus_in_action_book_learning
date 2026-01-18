@@ -9,6 +9,7 @@ import java.util.Optional;
 
 @MongoEntity(collection = "Rentals")
 public class Rental extends PanacheMongoEntity {
+    public boolean paid;
     public String userId;
     public Long reservationId;
     public LocalDate startDate;

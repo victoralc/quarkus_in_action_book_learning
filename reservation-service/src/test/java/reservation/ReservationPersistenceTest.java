@@ -2,6 +2,7 @@ package reservation;
 
 import io.quarkus.test.hibernate.reactive.panache.TransactionalUniAsserter;
 import io.quarkus.test.junit.QuarkusTest;
+import io.quarkus.test.junit.TestProfile;
 import io.quarkus.test.vertx.RunOnVertxContext;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
