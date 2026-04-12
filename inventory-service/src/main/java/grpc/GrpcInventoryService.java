@@ -7,10 +7,10 @@ import io.smallrye.mutiny.Uni;
 import jakarta.inject.Inject;
 import jakarta.transaction.Transactional;
 import billing.model.Car;
-import org.acme.inventory.model.CarResponse;
-import org.acme.inventory.model.InsertCarRequest;
-import org.acme.inventory.model.InventoryService;
-import org.acme.inventory.model.RemoveCarRequest;
+import org.acme.inventory.billing.model.CarResponse;
+import org.acme.inventory.billing.model.InsertCarRequest;
+import org.acme.inventory.billing.model.InventoryService;
+import org.acme.inventory.billing.model.RemoveCarRequest;
 import repository.CarRepository;
 
 import java.util.Optional;
