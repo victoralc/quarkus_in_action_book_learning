@@ -49,6 +49,7 @@ public class ReservationResource {
     public Uni<Collection<Car>> availability(@RestQuery LocalDate startDate, @RestQuery LocalDate endDate) {
         // obtain all cars from inventory
         Uni<List<Car>> availableCarsUni = inventoryClient.allCars();
+
         // get all current reservations
         Uni<List<Reservation>> reservationsUni = Reservation.listAll();
 
@@ -57,6 +58,7 @@ public class ReservationResource {
                     // create a map from id to car
                     Map<Long, Car> carsById = new HashMap<>();
                     for (Car car : availableCars) {
+                        System.out.println("Found car: " + car);
                         carsById.put(car.id(), car);
                     }
                     // for each reservation, remove the car from the map
