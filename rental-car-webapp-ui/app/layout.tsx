@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import { Navbar } from "@/app/components";
+import { AuthProvider } from "@/app/context/AuthContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -29,13 +30,15 @@ export default function RootLayout({
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-slate-50">
-        <Navbar />
-        <main className="flex-1">{children}</main>
-        <footer className="bg-slate-900 text-slate-400 py-6">
-          <div className="max-w-7xl mx-auto px-4 text-center">
-            <p>&copy; 2025 RentCar. All rights reserved.</p>
-          </div>
-        </footer>
+        <AuthProvider>
+          <Navbar />
+          <main className="flex-1">{children}</main>
+          <footer className="bg-slate-900 text-slate-400 py-6">
+            <div className="max-w-7xl mx-auto px-4 text-center">
+              <p>&copy; 2025 RentCar. All rights reserved.</p>
+            </div>
+          </footer>
+        </AuthProvider>
       </body>
     </html>
   );

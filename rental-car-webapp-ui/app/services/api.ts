@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { Car, Reservation, Rental } from '@/app/types';
+import { Car, Reservation, Rental, AuthResponse, LoginCredentials, RegisterData } from '@/app/types';
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8081';
 
@@ -48,6 +48,23 @@ export const reservationApi = {
 export const rentalApi = {
   start: async (userId: string, reservationId: number): Promise<Rental> => {
     const response = await api.post(`/rental/start/${userId}/${reservationId}`);
+    return response.data;
+  },
+};
+
+export const authApi = {
+  login: async (credentials: LoginCredentials): Promise<AuthResponse> => {
+    const response = await api.post('/auth/login', credentials);
+    return response.data;
+  },
+
+  register: async (data: RegisterData): Promise<AuthResponse> => {
+    const response = await api.post('/auth/register', data);
+    return response.data;
+  },
+
+  validateToken: async (): Promise<boolean> => {
+    const response = await api.get('/auth/validate');
     return response.data;
   },
 };

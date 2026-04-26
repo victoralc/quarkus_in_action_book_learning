@@ -1,3 +1,4 @@
 reservation-service 8081
-inventory-service 8083
 rental-service 8082
+inventory-service 8083
+billing-service 8084

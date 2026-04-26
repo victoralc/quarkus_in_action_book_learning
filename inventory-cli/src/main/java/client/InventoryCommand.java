@@ -3,6 +3,9 @@ package client;
 import io.quarkus.grpc.GrpcClient;
 import io.quarkus.runtime.QuarkusApplication;
 import io.quarkus.runtime.annotations.QuarkusMain;
+import org.acme.inventory.billing.model.InsertCarRequest;
+import org.acme.inventory.billing.model.InventoryService;
+import org.acme.inventory.billing.model.RemoveCarRequest;
 
 @QuarkusMain
 public class InventoryCommand implements QuarkusApplication {
